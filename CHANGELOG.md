@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/ivelum/github-action-slack-notify-build/compare/v1.5.0...v1.6.0) (2021-10-28)
+
+
+### Features
+
+* short Slack messages ([f51c5f1](https://github.com/ivelum/github-action-slack-notify-build/commit/f51c5f1ae702867bd20fe5599dda0ea4fdf4606b))
+
 # [1.5.0](https://github.com/voxmedia/github-action-slack-notify-build/compare/v1.4.0...v1.5.0) (2021-03-05)
 
 

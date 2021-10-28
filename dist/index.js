@@ -10010,48 +10010,37 @@ function buildSlackAttachments({ status, color, github }) {
   const sha = event === 'pull_request' ? payload.pull_request.head.sha : github.context.sha;
   const runId = parseInt(process.env.GITHUB_RUN_ID, 10);
 
-  const referenceLink =
-    event === 'pull_request'
-      ? {
-          title: 'Pull Request',
-          value: `<${payload.pull_request.html_url} | ${payload.pull_request.title}>`,
-          short: true,
-        }
-      : {
-          title: 'Branch',
-          value: `<https://github.com/${owner}/${repo}/commit/${sha} | ${branch}>`,
-          short: true,
-        };
+  const isPr = event === 'pull_request';
+  const referenceLink = isPr ? payload.pull_request.html_url : `https://github.com/${owner}/${repo}/commit/${sha}`;
+  const atLink = isPr ? `<${referenceLink} | #${payload.pull_request.number}>` : `<${referenceLink} | ${branch}>`;
+  const workflowLink = `<https://github.com/${owner}/${repo}/actions/runs/${runId} | ${workflow}>`;
 
   return [
     {
       color,
-      fields: [
+      blocks: [
         {
-          title: 'Repo',
-          value: `<https://github.com/${owner}/${repo} | ${owner}/${repo}>`,
-          short: true,
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*Workflow*: ${workflowLink} @ ${atLink} | *Status*: ${status}`,
+          },
         },
         {
-          title: 'Workflow',
-          value: `<https://github.com/${owner}/${repo}/actions/runs/${runId} | ${workflow}>`,
-          short: true,
-        },
-        {
-          title: 'Status',
-          value: status,
-          short: true,
-        },
-        referenceLink,
-        {
-          title: 'Event',
-          value: event,
-          short: true,
+          type: 'context',
+          elements: [
+            {
+              type: 'image',
+              image_url: 'https://github.githubassets.com/favicon.ico',
+              alt_text: 'GitHub',
+            },
+            {
+              type: 'mrkdwn',
+              text: `<https://github.com/${owner}/${repo} | ${owner}/${repo}>`,
+            },
+          ],
         },
       ],
-      footer_icon: 'https://github.githubassets.com/favicon.ico',
-      footer: `<https://github.com/${owner}/${repo} | ${owner}/${repo}>`,
-      ts: Math.floor(Date.now() / 1000),
     },
   ];
 }
