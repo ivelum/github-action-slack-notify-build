@@ -16,91 +16,47 @@ describe('Utils', () => {
   describe('buildSlackAttachments', () => {
     it('passes color', () => {
       const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
-
       expect(attachments[0].color).toBe('good');
     });
 
     it('shows status', () => {
       const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
-
-      expect(attachments[0].fields.find(a => a.title === 'Status')).toEqual({
-        title: 'Status',
-        value: 'STARTED',
-        short: true,
-      });
+      expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(
+        expect.stringContaining('STARTED')
+      );
     });
 
     describe('for push events', () => {
       it('links to the action workflow', () => {
         const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Workflow')).toEqual({
-          title: 'Workflow',
-          value: `<https://github.com/voxmedia/github-action-slack-notify-build/actions/runs/${runId} | CI>`,
-          short: true,
-        });
+        const link = `<https://github.com/ivelum/github-action-slack-notify-build/actions/runs/${runId} | CI>`;
+        expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(expect.stringContaining(link));
       });
 
       it('links to the action repo', () => {
         const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Repo')).toEqual({
-          title: 'Repo',
-          value: `<https://github.com/voxmedia/github-action-slack-notify-build | voxmedia/github-action-slack-notify-build>`,
-          short: true,
-        });
-      });
-
-      it('shows the event name', () => {
-        const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Event')).toEqual({
-          title: 'Event',
-          value: 'push',
-          short: true,
-        });
+        const link = `<https://github.com/ivelum/github-action-slack-notify-build | ivelum/github-action-slack-notify-build>`;
+        expect(attachments[0].blocks.find(b => b.type === 'context').elements[1].text).toEqual(link);
       });
 
       it('links to the branch', () => {
         const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Branch')).toEqual({
-          title: 'Branch',
-          value: `<https://github.com/voxmedia/github-action-slack-notify-build/commit/abc123 | my-branch>`,
-          short: true,
-        });
+        const link = `<https://github.com/ivelum/github-action-slack-notify-build/commit/abc123 | my-branch>`;
+        expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(expect.stringContaining(link));
       });
     });
 
     describe('for PR events', () => {
       it('links to the action workflow', () => {
-        const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PR_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Workflow')).toEqual({
-          title: 'Workflow',
-          value: `<https://github.com/voxmedia/github-action-slack-notify-build/actions/runs/${runId} | CI>`,
-          short: true,
-        });
-      });
-
-      it('shows the event name', () => {
-        const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PR_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Event')).toEqual({
-          title: 'Event',
-          value: 'pull_request',
-          short: true,
-        });
+        const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PUSH_EVENT });
+        const link = `<https://github.com/ivelum/github-action-slack-notify-build/actions/runs/${runId} | CI>`;
+        expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(expect.stringContaining(link));
       });
 
       it('links to the PR', () => {
         const attachments = buildSlackAttachments({ status: 'STARTED', color: 'good', github: GITHUB_PR_EVENT });
-
-        expect(attachments[0].fields.find(a => a.title === 'Pull Request')).toEqual({
-          title: 'Pull Request',
-          value: `<https://github.com/voxmedia/github-action-slack-notify-build/pulls/1 | This is a PR>`,
-          short: true,
-        });
+        const link = `<https://github.com/ivelum/github-action-slack-notify-build/pulls/1337 | #1337>`;
+        expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(expect.stringContaining(link));
       });
     });
   });

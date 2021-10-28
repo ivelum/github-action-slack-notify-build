@@ -2,7 +2,6 @@ name: GitHub Action Slack Notify CI
 
 on:
   - push
-  - pull_request
 
 jobs:
   build:
@@ -13,18 +12,7 @@ jobs:
       - name: Use Node.js v12.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12
-      - name: Notify slack
-        # Don't attempt to send Slack notifications on fork PRs which don't have access to secrets
-        if: env.SLACK_BOT_TOKEN
-        id: slack
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: ./
-        with:
-          channel_id: CB9QT2NNR
-          status: STARTED
-          color: warning
+          node-version: 14
       - name: Get yarn cache
         id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -43,22 +31,12 @@ jobs:
       - name: yarn build
         run: yarn build
       - name: release
-        if: ${{ endsWith(github.ref, '/main') }}
+        if: ${{ endsWith(github.ref, '/master') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
       - name: update v1 tag
-        if: ${{ endsWith(github.ref, '/main') }}
+        if: ${{ endsWith(github.ref, '/master') }}
         run: 'git push -f https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:refs/heads/v1'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Notify slack success
-        if: env.SLACK_BOT_TOKEN
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: ./
-        with:
-          message_id: ${{ steps.slack.outputs.message_id }}
-          channel_id: CB9QT2NNR
-          status: SUCCESS
-          color: good
