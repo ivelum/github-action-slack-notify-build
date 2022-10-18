@@ -44,6 +44,16 @@ describe('Utils', () => {
         const link = `<https://github.com/ivelum/github-action-slack-notify-build/commit/abc123 | my-branch>`;
         expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(expect.stringContaining(link));
       });
+
+      it('shows build number', () => {
+        const attachments = buildSlackAttachments({
+          status: 'STARTED',
+          color: 'good',
+          github: GITHUB_PUSH_EVENT,
+          buildNumber: '123',
+        });
+        expect(attachments[0].blocks.find(b => b.type === 'section').text.text).toEqual(expect.stringContaining('123'));
+      });
     });
 
     describe('for PR events', () => {

@@ -1,6 +1,6 @@
 const { context } = require('@actions/github');
 
-function buildSlackAttachments({ status, color, github }) {
+function buildSlackAttachments({ status, color, github, buildNumber }) {
   const { payload, ref, workflow, eventName } = github.context;
   const { owner, repo } = context.repo;
   const event = eventName;
@@ -13,6 +13,7 @@ function buildSlackAttachments({ status, color, github }) {
   const referenceLink = isPr ? payload.pull_request.html_url : `https://github.com/${owner}/${repo}/commit/${sha}`;
   const atLink = isPr ? `<${referenceLink} | #${payload.pull_request.number}>` : `<${referenceLink} | ${branch}>`;
   const workflowLink = `<https://github.com/${owner}/${repo}/actions/runs/${runId} | ${workflow}>`;
+  const buildInfo = buildNumber ? ` *Build*: ${buildNumber} |` : '';
 
   return [
     {
@@ -22,7 +23,7 @@ function buildSlackAttachments({ status, color, github }) {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*Workflow*: ${workflowLink} @ ${atLink} | *Status*: ${status}`,
+            text: `*Workflow*: ${workflowLink} @ ${atLink} |${buildInfo} *Status*: ${status}`,
           },
         },
         {
