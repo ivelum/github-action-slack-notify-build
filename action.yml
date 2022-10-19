@@ -4,6 +4,9 @@ branding:
   icon: message-square
   color: orange
 inputs:
+  build_number:
+    description: 'The build number. Will be included in the notification message.'
+    required: false
   channel:
     description: 'The Slack channel name. Required if no `channel_id` provided.'
     required: false
